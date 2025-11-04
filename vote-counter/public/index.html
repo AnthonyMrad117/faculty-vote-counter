@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Vote Counter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-screen">
+            <h1>Faculty Vote Counter</h1>
+            <p class="subtitle">Choose your role to continue</p>
+            
+            <div class="button-group">
+                <button id="adminBtn" class="btn btn-admin">
+                    <span class="btn-icon">👤</span>
+                    Admin
+                </button>
+                <button id="viewerBtn" class="btn btn-viewer">
+                    <span class="btn-icon">👁️</span>
+                    Viewer
+                </button>
+            </div>
+            
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Admin Password</h2>
+            <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off">
+            <div id="passwordError" class="error-message"></div>
+            <div class="modal-buttons">
+                <button id="submitPassword" class="btn btn-admin">Submit</button>
+                <button id="cancelPassword" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const adminBtn = document.getElementById('adminBtn');
+        const viewerBtn = document.getElementById('viewerBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordInput = document.getElementById('passwordInput');
+        const submitPassword = document.getElementById('submitPassword');
+        const cancelPassword = document.getElementById('cancelPassword');
+        const passwordError = document.getElementById('passwordError');
+
+        // Handle admin button click - show password modal
+        adminBtn.addEventListener('click', () => {
+            passwordModal.style.display = 'flex';
+            passwordInput.focus();
+            passwordError.textContent = '';
+            statusMessage.textContent = '';
+            statusMessage.className = 'status-message';
+        });
+
+        // Handle password submission
+        submitPassword.addEventListener('click', () => {
+            const password = passwordInput.value;
+            if (password) {
+                socket.emit('requestAdmin', password);
+            } else {
+                passwordError.textContent = 'Please enter a password';
+            }
+        });
+
+        // Handle Enter key in password input
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitPassword.click();
+            }
+        });
+
+        // Handle cancel button
+        cancelPassword.addEventListener('click', () => {
+            passwordModal.style.display = 'none';
+            passwordInput.value = '';
+            passwordError.textContent = '';
+        });
+
+        // Handle admin granted
+        socket.on('adminGranted', () => {
+            // Store password temporarily for re-authentication on admin page
+            sessionStorage.setItem('adminPassword', passwordInput.value);
+            passwordModal.style.display = 'none';
+            passwordInput.value = '';
+            window.location.href = '/admin';
+        });
+
+        // Handle admin denied (incorrect password)
+        socket.on('adminDenied', (message) => {
+            passwordError.textContent = message || 'Incorrect password';
+            passwordInput.value = '';
+            passwordInput.focus();
+        });
+
+        // Handle viewer button
+        viewerBtn.addEventListener('click', () => {
+            window.location.href = '/viewer';
+        });
+    </script>
+</body>
+</html>
+

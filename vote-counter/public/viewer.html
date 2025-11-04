@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewer - Faculty Vote Counter</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Live Vote Count</h1>
+            <div class="header-actions">
+                <button class="btn-secondary" onclick="window.location.href='/results'">View Results</button>
+                <button class="btn-secondary" onclick="window.location.href='/'">Home</button>
+            </div>
+        </div>
+        
+        <div class="faculties-grid" id="facultiesGrid">
+            <!-- Faculty cards will be generated dynamically -->
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="viewer.js"></script>
+</body>
+</html>
+
